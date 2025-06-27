@@ -16,12 +16,15 @@ var (
 // GetVersionInfo returns version information
 func GetVersionInfo() string {
 	var version string
+	var commit string
+
+	// Use goreleaser build-time variables if available
 	if GitTag != "unknown" && GitTag != "" {
 		version = GitTag
-	} else if GitCommit != "unknown" && GitCommit != "" {
-		version = GitCommit
-	} else {
+	} else if Version != "dev" && Version != "" {
 		version = Version
+	} else {
+		version = "dev"
 
 		// Try to get version info from build info when using go install
 		if buildInfo, ok := debug.ReadBuildInfo(); ok {
@@ -47,5 +50,10 @@ func GetVersionInfo() string {
 		}
 	}
 
-	return fmt.Sprintf("kubectl-setimg version %s\nGo version: %s", version, runtime.Version())
+	// Add commit info if available
+	if GitCommit != "unknown" && GitCommit != "" && len(GitCommit) > 7 {
+		commit = fmt.Sprintf(" (commit: %s)", GitCommit[:7])
+	}
+
+	return fmt.Sprintf("kubectl-setimg version %s%s\nGo version: %s", version, commit, runtime.Version())
 }
