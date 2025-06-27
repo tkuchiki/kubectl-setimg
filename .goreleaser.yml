@@ -6,7 +6,8 @@ before:
     - go generate ./...
 
 builds:
-  - env:
+  - id: kubectl-setimg
+    env:
       - CGO_ENABLED=0
     goos:
       - linux
@@ -63,7 +64,7 @@ release:
     - `ghcr.io/tkuchiki/kubectl-setimg:{{.Tag}}`
     - `ghcr.io/tkuchiki/kubectl-setimg:latest`
 
-# Generate completion scripts
+# Generate Linux packages (deb/rpm)
 nfpms:
   - id: kubectl-setimg
     package_name: kubectl-setimg
@@ -75,8 +76,8 @@ nfpms:
     formats:
       - deb
       - rpm
-    contents:
-      - src: ./kubectl-setimg
-        dst: /usr/local/bin/kubectl-setimg
-        file_info:
-          mode: 0755
+    # Only build packages for Linux
+    builds:
+      - kubectl-setimg
+    # Override the default bindir
+    bindir: /usr/local/bin
